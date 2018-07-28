@@ -85,34 +85,65 @@ bool recieveMessageFromServer(char* i_ReciveBuffer, SOCKET& io_ConnSocket, socka
 	}
 
 	i_ReciveBuffer[bytesRecv] = '\0'; //add the null-terminating to make it a string
-	cout << "Time Client: Recieved: " << bytesRecv << " bytes of \"" << i_ReciveBuffer << "\" message.\n";
+	cout << "Time Client: Recieved: " << bytesRecv << " bytes of \"" << i_ReciveBuffer << "\" message.\n\n\n";
+
+	return true;
+}
+
+void displayOptionsToUser()
+{
+	cout << "Please enter a choice: \n";
+	cout << "0 - Exit! \n";
+	cout << "1 - GetTime \n";
+	cout << "2 - GetTimeWithoutDate \n";
+	cout << "3 - GetTimeSinceEpoch \n";
+	cout << "4 - GetClientToServerDelayEstimation \n";
+	cout << "5 - MeasureRTT \n";
+	cout << "6 - GetTimeWithoutDateOrSeconds \n";
+	cout << "7 - GetYear \n";
+	cout << "8 - GetMonthAndDay \n";
+	cout << "9 - GetSecondsSinceBeginingOfMonth \n";
+	cout << "10 - GetDayOfYear \n";
+	cout << "11 - GetDaylightSavings \n\n";
+}
+
+bool answerUserRequests()
+{
+	SOCKET connSocket;
+	sockaddr_in server;
+	char sendBuff[255]/* = "What's the time?"*/;
+	char recvBuff[255];
+	bool doesUserWantToRequest = true;
+
+	if (!connectToServer("127.0.0.1", connSocket, server))
+	{
+		return false;
+	}
+
+	while(doesUserWantToRequest)
+	{
+		displayOptionsToUser();
+		cin >> sendBuff;
+
+		if (sendBuff[0] == '0')
+		{
+			doesUserWantToRequest = false;
+		}
+		else
+		{
+			sendMessageToServer("What's the time?", connSocket, server);
+			recieveMessageFromServer(recvBuff, connSocket, server);
+		}
+	}
+
+	// Closing connections and Winsock.
+	cout << "Time Client: Closing Connection.\n";
+	closesocket(connSocket);
 
 	return true;
 }
 
 void main()
 {
-	SOCKET connSocket;
-	sockaddr_in server;
-	char sendBuff[255] = "What's the time?";
-	char recvBuff[255];
-
-	if (!connectToServer("127.0.0.1", connSocket, server))
-	{
-		return;
-	}
-
-	if (!sendMessageToServer(sendBuff, connSocket, server))
-	{
-		return;
-	}
-
-	if (!recieveMessageFromServer(recvBuff, connSocket, server))
-	{
-		return;
-	}
-
-	// Closing connections and Winsock.
-	cout << "Time Client: Closing Connection.\n";
-	closesocket(connSocket);
+	answerUserRequests();
 }
