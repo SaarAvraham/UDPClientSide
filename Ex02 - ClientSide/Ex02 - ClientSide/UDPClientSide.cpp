@@ -4,6 +4,7 @@ using namespace std;
 // Don't forget to include "ws2_32.lib" in the library list.
 #include <winsock2.h> 
 #include <string.h>
+#include <sstream>
 
 #define TIME_PORT	27015
 
@@ -125,13 +126,13 @@ bool answerUserRequests()
 		displayOptionsToUser();
 		cin >> sendBuff;
 
-		if (sendBuff[0] == '0')
+		if (strcmp(sendBuff, "0") == 0)
 		{
 			doesUserWantToRequest = false;
 		}
 		else
 		{
-			sendMessageToServer("What's the time?", connSocket, server);
+			sendMessageToServer(sendBuff, connSocket, server);
 			recieveMessageFromServer(recvBuff, connSocket, server);
 		}
 	}
